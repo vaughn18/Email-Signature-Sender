@@ -8,7 +8,7 @@ class SignatureBox extends StatefulWidget {
 
 class _SignatureBoxState extends State<SignatureBox> {
   final SignatureController _controller = SignatureController(
-    penStrokeWidth: 5,
+    penStrokeWidth: 3,
     penColor: Colors.black,
     exportBackgroundColor: Colors.white,
   );
@@ -44,6 +44,7 @@ class _SignatureBoxState extends State<SignatureBox> {
           ),
           child: Signature(
             controller: _controller,
+            width: 400,
             height: 300,
             backgroundColor: Colors.white,
           ),
