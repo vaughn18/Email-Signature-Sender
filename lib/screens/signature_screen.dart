@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:signature/signature.dart';
 
@@ -17,6 +18,8 @@ class SignatureScreen extends StatefulWidget {
 }
 
 class _SignatureScreenState extends State<SignatureScreen> {
+  final picker = ImagePicker();
+
   //Signature Controller
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 3,
@@ -53,14 +56,18 @@ class _SignatureScreenState extends State<SignatureScreen> {
     //get the email data from previous route
     final emailData = ModalRoute.of(context).settings.arguments as EmailModel;
 
-    //convert signature to picture
-
     Future<void> send() async {
       if (_controller.isNotEmpty) {
         var data = await _controller.toPngBytes();
         final imgName = 'signature.png';
-        String dir = (await getApplicationDocumentsDirectory()).path;
-        String fullPath = '$dir/$imgName';
+        String dir = (await getExternalStorageDirectory()).path;
+
+        print(dir);
+        print('gay');
+
+        await Directory('$dir/signatures').create(recursive: true);
+
+        final fullPath = '$dir/signatures/$imgName';
 
         File(fullPath).writeAsBytesSync(data);
 
@@ -72,7 +79,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
           isHTML: false,
         );
 
-        String platformResponse;
+        print('gago ka');
 
         try {
           await FlutterEmailSender.send(email);
