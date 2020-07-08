@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../models/email_model.dart';
 
+import './signature_screen.dart';
+
 class EmailScreen extends StatefulWidget {
+  //route name
+  static const routeName = '/emailForm';
+
   @override
   _EmailScreenState createState() => _EmailScreenState();
 }
@@ -49,14 +54,15 @@ class _EmailScreenState extends State<EmailScreen> {
   }
 
 //this function is called when saved
-  void _saveEmail(EmailModel email) {
-    final newEmail = EmailModel(
-      email: email.email,
-      msg: email.msg,
-      subject: email.subject,
-    );
+  Future<void> _saveForm() async {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
 
-    _initValues = newEmail;
+    _form.currentState.save();
+    Navigator.of(context)
+        .pushNamed(SignatureScreen.routeName, arguments: _editedEmail);
   }
 
   @override
@@ -67,7 +73,7 @@ class _EmailScreenState extends State<EmailScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.arrow_forward),
-            onPressed: () {},
+            onPressed: _saveForm,
           )
         ],
       ),
@@ -79,43 +85,49 @@ class _EmailScreenState extends State<EmailScreen> {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: TextFormField(
-                    initialValue: _initValues.email,
-                    decoration: InputDecoration(
-                      labelText: 'Recipient\'s Email',
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(25.0),
-                        borderSide: new BorderSide(),
-                      ),
-                    ),
-                    textInputAction: TextInputAction.next,
-                    focusNode: _recipientFocusNode,
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(_sbjFocusNode);
-                    },
+                child:
 
-                    //Validates Form
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please provide a value.';
-                      }
-                      if (!value.contains('@') || !value.contains('.com')) {
-                        return 'This is an invalid email';
-                      }
-                      return null;
-                    },
+                    //-------------THis is the recepient field------//
+                    TextFormField(
+                        initialValue: _initValues.email,
+                        decoration: InputDecoration(
+                          labelText: 'Recipient\'s Email',
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(25.0),
+                            borderSide: new BorderSide(),
+                          ),
+                        ),
+                        textInputAction: TextInputAction.next,
+                        focusNode: _recipientFocusNode,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(_sbjFocusNode);
+                        },
 
-                    //On Saved function for this form
-                    onSaved: (value) {
-                      _editedEmail = EmailModel(
-                          email: value,
-                          subject: _editedEmail.subject,
-                          msg: _editedEmail.msg);
-                    }),
+                        //Validates Form
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please provide a value.';
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
+                            return 'This is an invalid email';
+                          }
+                          return null;
+                        },
+
+                        //On Saved function for this form
+                        onSaved: (value) {
+                          _editedEmail = EmailModel(
+                            email: value,
+                            subject: _editedEmail.subject,
+                            msg: _editedEmail.msg,
+                          );
+                        }),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: TextFormField(
+                child:
+                    //--------This is the subject field --------//
+                    TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Subject',
                     border: new OutlineInputBorder(
@@ -129,12 +141,27 @@ class _EmailScreenState extends State<EmailScreen> {
                     FocusScope.of(context).requestFocus(_msgFocusNode);
                   },
 
-                  //
-                  validator: (value) {},
+                  //Validates form
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please provide a value.';
+                    }
+                    return null;
+                  },
+
+                  onSaved: (value) {
+                    _editedEmail = EmailModel(
+                      email: _editedEmail.email,
+                      subject: value,
+                      msg: _editedEmail.msg,
+                    );
+                  },
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
+
+                //-----------This is the body field--------//
                 child: TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Body',
@@ -147,7 +174,21 @@ class _EmailScreenState extends State<EmailScreen> {
                   focusNode: _msgFocusNode,
                   maxLines: 10,
                   onFieldSubmitted: (_) {},
-                  validator: (value) {},
+
+                  //Validates form
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please provide a value.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _editedEmail = EmailModel(
+                      email: _editedEmail.email,
+                      subject: _editedEmail.subject,
+                      msg: value,
+                    );
+                  },
                 ),
               ),
             ],
